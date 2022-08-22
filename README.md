@@ -1,6 +1,7 @@
-# microverse-ruby-template
+# School Library Command-Line Program
 
-A repo template for Ruby project
+A command line program that mimics a typical school library operations flow. 
+Designed using Ruby Object Oriented Programming (OOP) approach.
 
 
 ## Built With
