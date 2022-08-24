@@ -1,4 +1,5 @@
 require './nameable'
+require './rental'
 
 class Person < Nameable
   attr_reader :id, :rentals
@@ -11,6 +12,10 @@ class Person < Nameable
     @age = age
     @parent_permission = parent_permission
     @rentals = []
+  end
+
+  def add_rental(book)
+    Rental.new(person: self, book: book)
   end
 
   # @return [String]

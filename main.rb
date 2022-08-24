@@ -1,7 +1,7 @@
 require './student'
 require './decorators'
 require './classroom'
-require './rental'
+require './book'
 
 def cli_separator(char = '-', size = 50)
   puts char * size
