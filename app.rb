@@ -58,8 +58,8 @@ class App
   end
 
   def find_rentals_by_person(person_id)
-    (@rentals.select { |r| r.person.id == person_id }).each do |re|
-      puts "[Rental] Date: #{re.date}, Book_Title: #{re.book.title}"
+    (@rentals.select { |r| r.person.id == person_id }).each do |d|
+      puts "[Rental] Date: #{d.date}, Title: #{d.book.title}, Borrower: #{d.person.name}"
     end
   end
 end
