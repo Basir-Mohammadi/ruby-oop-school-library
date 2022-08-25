@@ -15,20 +15,20 @@ class Factory
   def create_person
     puts 'Which person?'
     list_with_index(%w[Student Teacher])
-    choice = prompt(prefix: 'Choose', suffix: 'person: ')
-    return if choice.nil? || ![1, 2].include?(choice)
+    choice = prompt(suffix: 'person: ')
+    return if reject_choice?(choice)
 
-    age = prompt(suffix: 'age: ')
-    return if age.nil?
+    age = nil_prompt('age: (age varies from 1 up to 100) ')
+    return if reject_choice?(age, max: 100)
 
-    name = prompt(type: :str, suffix: 'name: ')
+    name = nil_prompt('name: ', :str)
     return if name.nil?
 
     choice == 1 ? create_student(age, name) : create_teacher(age, name)
   end
 
   def create_classroom
-    label = prompt(type: :str, suffix: 'label: ')
+    label = nil_prompt('label: ', :str)
     return if label.nil?
 
     classroom = @app.create_classroom(label)
@@ -37,10 +37,10 @@ class Factory
   end
 
   def create_book
-    title = prompt(type: :str, suffix: 'title: ')
+    title = nil_prompt('title: ', :str)
     return if title.nil?
 
-    author = prompt(type: :str, suffix: 'author: ')
+    author = nil_prompt('author: ', :str)
     return if author.nil?
 
     book = @app.create_book(title, author)
@@ -53,17 +53,17 @@ class Factory
 
     puts "Who's borrowing?"
     list_people_with_index
-    pc = prompt(prefix: 'Select', suffix: 'person: ')
+    pc = prompt(suffix: 'person: ')
     ss = @app.students.size
-    return if reject_choice?(pc, ss + @app.teachers.size)
+    return if reject_choice?(pc, max: ss + @app.teachers.size)
 
     puts 'Which book?'
     @app.books.each_with_index { |b, i| puts "#{i + 1}. #{b.title}" }
-    bc = prompt(prefix: 'Select', suffix: 'book: ')
-    return if reject_choice?(bc, @app.books.size)
+    bc = prompt(suffix: 'book: ')
+    return if reject_choice?(bc, max: @app.books.size)
 
-    person = pc < ss ? @app.students[pc] : @app.teachers[pc]
-    rental = @app.create_rental(person, @app.books[bc])
+    person = pc < ss ? @app.students[pc - 1] : @app.teachers[pc - ss - 1]
+    rental = @app.create_rental(person, @app.books[bc - 1])
     puts 'Rental created successfully!'
     rental
   end
@@ -81,10 +81,10 @@ class Factory
   end
 
   def list_rentals_by_person
-    puts 'Whose rentals do want to retrieve?'
+    puts 'Whose rentals do you want to retrieve?'
     @app.list_people
-    choice = prompt(prefix: '', suffix: 'person ID: ')
-    return if reject_choice?(choice, 100)
+    choice = nil_prompt('person ID: ')
+    return if reject_choice?(choice, max: 100)
 
     @app.find_rentals_by_person(choice)
   end
@@ -95,10 +95,11 @@ class Factory
 
   private
 
-  def prompt(type: :int, prefix: 'Enter', suffix: ' Choice: ')
+  def prompt(type: :int, prefix: 'Select ', suffix: 'option: ')
     value = nil
     loop do
-      value = chomp("#{prefix}#{suffix}")
+      print "#{prefix}#{suffix}"
+      value = gets.chomp
       if type == :int && value != '..'
         begin
           value = Integer(value)
@@ -110,6 +111,10 @@ class Factory
       break
     end
     value == '..' ? nil : value
+  end
+
+  def nil_prompt(suffix, type = :int)
+    prompt(prefix: '', suffix: suffix, type: type)
   end
 
   def show_allowed_options
@@ -150,15 +155,15 @@ class Factory
   def list_people_with_index
     si = @app.students.size
     @app.students.each_with_index { |s, i| puts "#{i + 1}. #{s.name}" }
-    @app.teachers.each_with_index { |t, i| puts "#{i + si}. #{t.name}" }
+    @app.teachers.each_with_index { |t, i| puts "#{i + si + 1}. #{t.name}" }
   end
 
-  def reject_choice?(choice, limit)
-    choice.nil? || choice.negative? || choice > limit
+  def reject_choice?(choice, min: 1, max: 2)
+    choice.nil? || choice < min || choice > max
   end
 
   def create_teacher(age, name)
-    specialization = prompt(type: :str, suffix: 'specialization: ')
+    specialization = nil_prompt('specialization: ', :str)
     return if specialization.nil?
 
     teacher = @app.create_teacher(age, name, specialization)
@@ -170,10 +175,10 @@ class Factory
     puts 'Available Classrooms'
     puts '0. Create new'
     @app.classrooms.each_with_index { |c, i| puts "#{i + 1}. #{c.label}" }
-    choice = prompt(prefix: 'Select', suffix: 'classroom')
-    return if choice.nil?
+    choice = prompt(suffix: 'classroom: ')
+    return if reject_choice?(choice, min: 0, max: @app.classrooms.size)
 
-    classroom = choice.zero? ? create_classroom : @app.classrooms[choice]
+    classroom = choice.zero? ? create_classroom : @app.classrooms[choice - 1]
     return if classroom.nil?
 
     student = @app.create_student(age, name, classroom)
@@ -195,6 +200,8 @@ def main
     when 3
       factory.create_book
     when 4
+      factory.create_rental
+    when 5
       factory.list_books
     when 6
       factory.list_people

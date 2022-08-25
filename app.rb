@@ -15,8 +15,8 @@ class App
   end
 
   def list_people
-    @teachers.each { |t| puts "[Teacher] ID: #{t.id} Name: #{t.name}" }
-    @students.each { |s| puts "[Student] ID: #{s.id} Name: #{s.name}" }
+    @students.each { |s| puts "[Student] ID: #{s.id}, Name: #{s.name}" }
+    @teachers.each { |t| puts "[Teacher] ID: #{t.id}, Name: #{t.name}" }
   end
 
   def list_books
@@ -59,7 +59,7 @@ class App
 
   def find_rentals_by_person(person_id)
     (@rentals.select { |r| r.person.id == person_id }).each do |re|
-      puts "[Rental] Date: #{re.date}, Book-Title: #{re.book.title}"
+      puts "[Rental] Date: #{re.date}, Book_Title: #{re.book.title}"
     end
   end
 end
