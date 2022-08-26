@@ -6,20 +6,9 @@ class UserPrompt
   private
 
   def prompt(type: :int, prefix: 'Select ', suffix: 'option: ')
-    value = nil
-    loop do
-      print "#{prefix}#{suffix}"
-      value = gets.chomp
-      if type == :int && value != '..'
-        begin
-          value = Integer(value)
-        rescue ArgumentError
-          puts 'Error!! Only numbers are accepted'
-          next
-        end
-      end
-      break
-    end
+    print "#{prefix}#{suffix}"
+    value = gets.chomp
+    value = value.to_i if type == :int && value != '..'
     value == '..' ? nil : value
   end
 
